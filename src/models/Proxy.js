@@ -22,5 +22,8 @@ module.exports = {
     deleted: {
       type: Boolean,
     },
+    type: {
+      type: String,
+    },
   },
 };

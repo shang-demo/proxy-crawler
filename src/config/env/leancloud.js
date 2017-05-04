@@ -7,7 +7,6 @@ module.exports = {
     requestBody: true,
     responseBody: false,
   },
-  useLeanStorage: true,
   connections: {
     defaultMongo: {
       type: 'uri',
