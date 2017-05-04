@@ -31,6 +31,8 @@ module.exports.routes = {
   '/': 'ExecuteCmdController.deployVersion',
   '/version': 'ExecuteCmdController.deployVersion',
 
+  'get /api/v1/proxy': 'ProxyController.query',
+
   // 未找到
   '/*': async function viewHtml(ctx) {
     ctx.status = 404;
