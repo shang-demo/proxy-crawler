@@ -55,6 +55,9 @@ const svc = {
     _id: 'xicidaili'
   },
   async lift() {
+    svc.intervalCheck();
+    svc.intervalCrawler();
+
     svc.check()
       .catch((e) => {
         logger.warn(e);
@@ -65,8 +68,6 @@ const svc = {
         logger.warn(e);
       });
 
-    svc.intervalCheck();
-    svc.intervalCrawler();
     return Promise.resolve();
   },
   async intervalCheck() {
@@ -199,6 +200,7 @@ const svc = {
     }
 
     let currentConnected = await this.checkProxy(url);
+    let currentDeleted;
 
     checkIndex += 1;
 
@@ -218,6 +220,11 @@ const svc = {
       checkIndex = 3;
     }
 
+    // 连续失败30次以上的
+    if (!currentConnected && checkIndex >= 30) {
+      currentDeleted = true;
+    }
+
     let nextCheckTime = new Date(new Date().getTime() + (checkIndex * 60 * 1000));
 
     return Proxy
@@ -233,6 +240,7 @@ const svc = {
           failedTimes,
           checkIndex,
           nextCheckTime,
+          deleted: currentDeleted,
         },
       }, {
         setDefaultsOnInsert: true,
