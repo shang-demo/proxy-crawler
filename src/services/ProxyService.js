@@ -115,6 +115,7 @@ const svc = {
             });
           })
           .then((data) => {
+            logger.info(`crawler ${url} ${data.length}`);
             return _.chain(data)
               .filter((item) => {
                 return item.ip_address && item.type;
