@@ -2,7 +2,7 @@ const rp = require('request-promise');
 const { userAgents } = require('./Constants');
 
 const svc = {
-  doing: false,
+  checkLen: 0,
   crawlerUrls: ['http://www.xicidaili.com/nn/', 'http://www.xicidaili.com/nt/'],
   sitemap: {
     startUrl: 'http://www.xicidaili.com/nn/',
@@ -138,10 +138,13 @@ const svc = {
       });
   },
   async check() {
-    if (this.doing) {
+    logger.info('check url length: ', this.checkLen);
+
+    if (this.checkLen > 0) {
       return Promise.resolve();
     }
-    this.doing = true;
+
+    this.checkLen = true;
 
     let now = new Date();
     return Promise
@@ -162,14 +165,19 @@ const svc = {
           .lean();
       })
       .then((data) => {
-        logger.info('check url length: ', data.length);
+        this.checkLen = data.length;
         return data;
       })
       .map((proxy) => {
+        this.checkLen = this.checkLen - 1;
         return this.updateProxy(proxy);
-      }, { concurrency: 100 })
-      .finally(() => {
-        this.doing = false;
+      }, { concurrency: 10 })
+      .then(() => {
+        this.checkLen = 0;
+      })
+      .catch((e) => {
+        this.checkLen = 0;
+        return Promise.reject(e);
       });
   },
   async checkProxy(proxyUrl) {
