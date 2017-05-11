@@ -138,13 +138,12 @@ const svc = {
       });
   },
   async check() {
-    logger.info('check url length: ', this.checkLen);
-
     if (this.checkLen > 0) {
+      logger.info('last interval, check url length: ', this.checkLen);
       return Promise.resolve();
     }
 
-    this.checkLen = true;
+    this.checkLen = 'pending connect mongo';
 
     let now = new Date();
     return Promise
@@ -166,16 +165,27 @@ const svc = {
       })
       .then((data) => {
         this.checkLen = data.length;
+        logger.info('new check url length: ', this.checkLen);
         return data;
       })
       .map((proxy) => {
         this.checkLen = this.checkLen - 1;
-        return this.updateProxy(proxy);
-      }, { concurrency: 10 })
+        return Promise
+          .race([
+            this.updateProxy(proxy),
+            Promise.delay(2 * mKoa.config.times.proxyCheckTimeout),
+          ])
+          .then((data) => {
+            if (!data) {
+              logger.warn('delay win in race', proxy);
+            }
+          });
+      }, { concurrency: 100 })
       .then(() => {
         this.checkLen = 0;
       })
       .catch((e) => {
+        logger.warn(e);
         this.checkLen = 0;
         return Promise.reject(e);
       });
@@ -208,7 +218,14 @@ const svc = {
       return null;
     }
 
-    let currentConnected = await this.checkProxy(url);
+    let currentConnected;
+    try {
+      currentConnected = await this.checkProxy(url);
+    }
+    catch (e) {
+      throw e;
+    }
+
     let currentDeleted;
 
     checkIndex += 1;
