@@ -251,6 +251,11 @@ const svc = {
       currentDeleted = true;
     }
 
+    // 失败次数60次以上
+    if (!currentConnected && failedTimes >= 60) {
+      currentDeleted = true;
+    }
+
     let nextCheckTime = new Date(new Date().getTime() + (checkIndex * 60 * 1000));
 
     return Proxy
