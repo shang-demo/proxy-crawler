@@ -1,4 +1,6 @@
-
+const MONGODB_DATABASE = 'production';
+const MONGODB_USERNAME = 'productionUser';
+const MONGODB_PASSWORD = process.env.MONGODB_PASSWORD;
 
 module.exports = {
   log: {
@@ -8,10 +10,21 @@ module.exports = {
   },
   connections: {
     defaultMongo: {
-      dbName: 'noDbName',
+      username: MONGODB_USERNAME,
+      password: MONGODB_PASSWORD,
+      hosts: [
+        {
+          host: '112.74.107.82',
+          port: 13508,
+        }
+      ],
+      database: MONGODB_DATABASE,
     },
   },
-  superSecret: process.env.SUPER_SECRET || 'SUPER_SECRET',
+  auth: {
+    tokenExpiresIn: 7200,
+    superSecret: process.env.SUPER_SECRET || 'SUPER_SECRET',
+  },
   execCmdKey: process.env.EXEC_CMD_KEY || 'key',
   mailTransport: {
     host: 'smtp.sina.com',
@@ -28,5 +41,7 @@ module.exports = {
   update: {
     ref: 'master',
   },
-  port: process.env.PORT || 1337,
+  port: process.env.PORT || 8080,
+  ip: undefined,
+  bootstrap: [],
 };
