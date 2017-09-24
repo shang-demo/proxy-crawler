@@ -47,6 +47,7 @@ module.exports = {
   },
   request: {
     parser: {
+      // url: 'http://127.0.0.1:1339/api/v1/parser',
       url: 'http://site-parser-service.leanapp.cn/api/v1/parser',
       json: true,
       method: 'POST',

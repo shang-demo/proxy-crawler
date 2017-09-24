@@ -1,59 +1,8 @@
 const rp = require('request-promise');
-const { userAgents } = require('./Constants');
+const { userAgents, proxyCrawlerList } = require('./Constants');
 
 const svc = {
   checkLen: 0,
-  crawlerUrls: ['http://www.xicidaili.com/nn/', 'http://www.xicidaili.com/nt/'],
-  sitemap: {
-    startUrl: 'http://www.xicidaili.com/nn/',
-    selectors: [
-      {
-        parentSelectors: ['_root'],
-        type: 'SelectorElement',
-        multiple: true,
-        id: 'item',
-        selector: 'tr',
-        delay: ''
-      },
-      {
-        parentSelectors: ['item'],
-        type: 'SelectorText',
-        multiple: false,
-        id: 'ip_address',
-        selector: 'td:nth-of-type(2)',
-        regex: '\\d+\\.\\d+\\.\\d+\\.\\d+',
-        delay: ''
-      },
-      {
-        parentSelectors: ['item'],
-        type: 'SelectorText',
-        multiple: false,
-        id: 'port',
-        selector: 'td:nth-of-type(3)',
-        regex: '',
-        delay: ''
-      },
-      {
-        parentSelectors: ['item'],
-        type: 'SelectorText',
-        multiple: false,
-        id: 'address',
-        selector: 'a',
-        regex: '',
-        delay: ''
-      },
-      {
-        parentSelectors: ['item'],
-        type: 'SelectorText',
-        multiple: false,
-        id: 'type',
-        selector: 'td:nth-of-type(6)',
-        regex: '',
-        delay: ''
-      }
-    ],
-    _id: 'xicidaili'
-  },
   async lift() {
     svc.intervalCheck();
     svc.intervalCrawler();
@@ -86,56 +35,85 @@ const svc = {
         });
     }, mKoa.config.times.proxyCrawlerDelay);
   },
-  async crawler() {
-    return Promise
-      .map(this.crawlerUrls, (url) => {
-        return rp(
-          {
-            url: mKoa.config.request.crawler.url,
-            method: mKoa.config.request.crawler.method,
-            json: mKoa.config.request.crawler.json,
-            body: {
-              requestOptions: {
-                url,
-              },
-              config: {
-                proxies: [null, null],
-              },
-            }
-          })
-          .then((data) => {
-            return rp({
-              url: mKoa.config.request.parser.url,
-              method: mKoa.config.request.parser.method,
-              json: mKoa.config.request.parser.json,
-              body: {
-                html: data.html,
-                sitemap: this.sitemap,
-              }
-            });
-          })
-          .then((data) => {
-            logger.info(`crawler ${url} ${data.length}`);
-            return _.chain(data)
-              .filter((item) => {
-                return item.ip_address && item.type;
-              })
-              .map((item) => {
-                return `${item.type.toLocaleLowerCase()}://${item.ip_address}`;
-              })
-              .value();
-          })
-          .map((proxyUrl) => {
-            return Proxy
-              .findOne({ proxyUrl })
-              .then((data) => {
-                if (!data) {
-                  return this.updateProxy({ url: proxyUrl });
-                }
-                return null;
-              });
-          });
+  async getHtml(requestConfig) {
+    let requestOptions;
+    if (_.isString(requestConfig)) {
+      requestOptions = {
+        url: requestConfig,
+      };
+    }
+    else {
+      requestOptions = requestConfig;
+    }
+
+    if (requestConfig.type === 'headlessChrome') {
+      return rp(requestConfig)
+        .then((data) => {
+          return data.data.html;
+        });
+    }
+
+    let config = {
+      url: mKoa.config.request.crawler.url,
+      method: mKoa.config.request.crawler.method,
+      json: mKoa.config.request.crawler.json,
+      body: {
+        requestOptions,
+        config: {
+          proxies: [null, null],
+        },
+      }
+    };
+
+    return rp(config)
+      .then((data) => {
+        return data.html;
       });
+  },
+  async crawler() {
+    return Promise.map(proxyCrawlerList, (crawlerInfo) => {
+      return Promise
+        .map(crawlerInfo.requestList, (requestConfig) => {
+          return Promise
+            .try(() => {
+              return svc.getHtml(requestConfig);
+            })
+            .then((html) => {
+            logger.info(typeof html);
+              return rp({
+                url: mKoa.config.request.parser.url,
+                method: mKoa.config.request.parser.method,
+                json: mKoa.config.request.parser.json,
+                body: {
+                  html,
+                  sitemap: crawlerInfo.sitemap,
+                }
+              });
+            })
+            .then((data) => {
+              logger.info(`crawler length: ${data.length}`, data);
+
+              return _.chain(data)
+                .filter((item) => {
+                  return item.ip_address && item.type;
+                })
+                .map((item) => {
+                  return `${item.type.toLocaleLowerCase()}://${item.ip_address}`;
+                })
+                .value();
+            })
+            .map((proxyUrl) => {
+              return Proxy
+                .findOne({ proxyUrl })
+                .then((data) => {
+                  if (!data) {
+                    return this.updateProxy({ url: proxyUrl });
+                  }
+                  return null;
+                });
+            });
+        });
+    });
   },
   async check() {
     if (this.checkLen > 0) {
@@ -193,19 +171,18 @@ const svc = {
   async checkProxy(proxyUrl) {
     return rp(
       {
-        url: 'http://www.youku.com/',
-        method: 'HEAD',
+        url: 'http://tip.soku.com/search_tip_1?query=proxy',
+        method: 'GET',
         timeout: mKoa.config.times.proxyCheckTimeout,
         proxy: proxyUrl,
         followRedirect: false,
         headers: {
           'User-Agent': userAgents[Math.floor(Math.random() * userAgents.length)]
         },
-        simple: false,
-        resolveWithFullResponse: true,
+        json: true,
       })
-      .then((req) => {
-        return !!req;
+      .then((body) => {
+        return body && body.q === 'proxy';
       })
       .catch(() => {
         return false;
@@ -281,3 +258,7 @@ const svc = {
 };
 
 module.exports = svc;
+
+setTimeout(() => {
+  svc.checkProxy('http://119.57.108.17');
+}, 1000);

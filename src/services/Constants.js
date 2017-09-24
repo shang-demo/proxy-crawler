@@ -6,4 +6,182 @@ module.exports = {
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36 QQBrowser/3.8.3858.400',
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.86 Safari/537.36',
   ],
+  proxyCrawlerList: [
+    {
+      name: 'goubanjia',
+      requestList: [
+        {
+          type: 'headlessChrome',
+          method: 'POST',
+          url: 'http://headless-chrome.xinshangshangxin.com/',
+          headers: { 'content-type': 'application/json' },
+          body: { query: '{\n  html(url:"http://www.goubanjia.com/", delay:1000)\n}' },
+          json: true
+        }
+      ],
+      sitemap: {
+        startUrl: 'http://www.goubanjia.com/',
+        selectors: [{
+          parentSelectors: ['_root'],
+          type: 'SelectorElement',
+          multiple: true,
+          id: 'item',
+          selector: '#list > table > tbody > tr',
+          delay: ''
+        },
+          {
+            parentSelectors: ['item'],
+            type: 'SelectorText',
+            multiple: false,
+            id: 'ip_address',
+            selector: 'td.ip',
+            regex: '',
+            delay: '',
+            innerText: true,
+          },
+          {
+            parentSelectors: ['item'],
+            type: 'SelectorText',
+            multiple: false,
+            id: 'type',
+            selector: 'td:nth-of-type(3) a.href',
+            regex: '',
+            delay: ''
+          },
+          {
+            parentSelectors: ['item'],
+            type: 'SelectorText',
+            multiple: false,
+            id: 'address',
+            selector: 'td:nth-of-type(4)',
+            regex: '',
+            delay: ''
+          }],
+        _id: 'goubanjia'
+      }
+    },
+    {
+      name: 'kuaidaili',
+      requestList: [
+        {
+          type: 'headlessChrome',
+          method: 'POST',
+          url: 'http://headless-chrome.xinshangshangxin.com/',
+          headers: { 'content-type': 'application/json' },
+          body: { query: '{\n  html(url:"http://www.kuaidaili.com/free/inha/", delay:3000)\n}' },
+          json: true
+        },
+        {
+          type: 'headlessChrome',
+          method: 'POST',
+          url: 'http://headless-chrome.xinshangshangxin.com/',
+          headers: { 'content-type': 'application/json' },
+          body: { query: '{\n  html(url:"http://www.kuaidaili.com/free/intr/", delay:3000)\n}' },
+          json: true
+        }
+      ],
+      sitemap: {
+        startUrl: 'http://www.kuaidaili.com/free/',
+        selectors: [{
+          parentSelectors: ['_root'],
+          type: 'SelectorElement',
+          multiple: true,
+          id: 'item',
+          selector: 'table tbody tr',
+          delay: ''
+        },
+          {
+            parentSelectors: ['item'],
+            type: 'SelectorText',
+            multiple: true,
+            id: 'ip_address',
+            selector: 'td:nth-of-type(1)',
+            regex: '',
+            delay: ''
+          },
+          {
+            parentSelectors: ['item'],
+            type: 'SelectorText',
+            multiple: false,
+            id: 'port',
+            selector: 'td:nth-of-type(2)',
+            regex: '',
+            delay: ''
+          },
+          {
+            parentSelectors: ['item'],
+            type: 'SelectorText',
+            multiple: false,
+            id: 'type',
+            selector: 'td:nth-of-type(4)',
+            regex: '',
+            delay: ''
+          },
+          {
+            parentSelectors: ['item'],
+            type: 'SelectorText',
+            multiple: false,
+            id: 'address',
+            selector: 'td:nth-of-type(5)',
+            regex: '',
+            delay: ''
+          }],
+        _id: 'kuaidaili'
+      },
+    },
+    {
+      name: 'xicidaili',
+      requestList: ['http://www.xicidaili.com/nn/', 'http://www.xicidaili.com/nt/'],
+      sitemap: {
+        startUrl: 'http://www.xicidaili.com/nn/',
+        selectors: [
+          {
+            parentSelectors: ['_root'],
+            type: 'SelectorElement',
+            multiple: true,
+            id: 'item',
+            selector: 'tr',
+            delay: ''
+          },
+          {
+            parentSelectors: ['item'],
+            type: 'SelectorText',
+            multiple: false,
+            id: 'ip_address',
+            selector: 'td:nth-of-type(2)',
+            regex: '\\d+\\.\\d+\\.\\d+\\.\\d+',
+            delay: ''
+          },
+          {
+            parentSelectors: ['item'],
+            type: 'SelectorText',
+            multiple: false,
+            id: 'port',
+            selector: 'td:nth-of-type(3)',
+            regex: '',
+            delay: ''
+          },
+          {
+            parentSelectors: ['item'],
+            type: 'SelectorText',
+            multiple: false,
+            id: 'address',
+            selector: 'a',
+            regex: '',
+            delay: ''
+          },
+          {
+            parentSelectors: ['item'],
+            type: 'SelectorText',
+            multiple: false,
+            id: 'type',
+            selector: 'td:nth-of-type(6)',
+            regex: '',
+            delay: ''
+          }
+        ],
+        _id: 'xicidaili'
+      },
+    }
+  ],
 };
