@@ -29,34 +29,34 @@ module.exports = {
           selector: '#list > table > tbody > tr',
           delay: ''
         },
-          {
-            parentSelectors: ['item'],
-            type: 'SelectorText',
-            multiple: false,
-            id: 'ip_address',
-            selector: 'td.ip',
-            regex: '',
-            delay: '',
-            innerText: true,
-          },
-          {
-            parentSelectors: ['item'],
-            type: 'SelectorText',
-            multiple: false,
-            id: 'type',
-            selector: 'td:nth-of-type(3) a.href',
-            regex: '',
-            delay: ''
-          },
-          {
-            parentSelectors: ['item'],
-            type: 'SelectorText',
-            multiple: false,
-            id: 'address',
-            selector: 'td:nth-of-type(4)',
-            regex: '',
-            delay: ''
-          }],
+        {
+          parentSelectors: ['item'],
+          type: 'SelectorText',
+          multiple: false,
+          id: 'ip_address',
+          selector: 'td.ip',
+          regex: '',
+          delay: '',
+          innerText: true,
+        },
+        {
+          parentSelectors: ['item'],
+          type: 'SelectorText',
+          multiple: false,
+          id: 'type',
+          selector: 'td:nth-of-type(3) a.href',
+          regex: '',
+          delay: ''
+        },
+        {
+          parentSelectors: ['item'],
+          type: 'SelectorText',
+          multiple: false,
+          id: 'address',
+          selector: 'td:nth-of-type(4)',
+          regex: '',
+          delay: ''
+        }],
         _id: 'goubanjia'
       }
     },
@@ -90,42 +90,42 @@ module.exports = {
           selector: 'table tbody tr',
           delay: ''
         },
-          {
-            parentSelectors: ['item'],
-            type: 'SelectorText',
-            multiple: true,
-            id: 'ip_address',
-            selector: 'td:nth-of-type(1)',
-            regex: '',
-            delay: ''
-          },
-          {
-            parentSelectors: ['item'],
-            type: 'SelectorText',
-            multiple: false,
-            id: 'port',
-            selector: 'td:nth-of-type(2)',
-            regex: '',
-            delay: ''
-          },
-          {
-            parentSelectors: ['item'],
-            type: 'SelectorText',
-            multiple: false,
-            id: 'type',
-            selector: 'td:nth-of-type(4)',
-            regex: '',
-            delay: ''
-          },
-          {
-            parentSelectors: ['item'],
-            type: 'SelectorText',
-            multiple: false,
-            id: 'address',
-            selector: 'td:nth-of-type(5)',
-            regex: '',
-            delay: ''
-          }],
+        {
+          parentSelectors: ['item'],
+          type: 'SelectorText',
+          multiple: true,
+          id: 'ip_address',
+          selector: 'td:nth-of-type(1)',
+          regex: '',
+          delay: ''
+        },
+        {
+          parentSelectors: ['item'],
+          type: 'SelectorText',
+          multiple: false,
+          id: 'port',
+          selector: 'td:nth-of-type(2)',
+          regex: '',
+          delay: ''
+        },
+        {
+          parentSelectors: ['item'],
+          type: 'SelectorText',
+          multiple: false,
+          id: 'type',
+          selector: 'td:nth-of-type(4)',
+          regex: '',
+          delay: ''
+        },
+        {
+          parentSelectors: ['item'],
+          type: 'SelectorText',
+          multiple: false,
+          id: 'address',
+          selector: 'td:nth-of-type(5)',
+          regex: '',
+          delay: ''
+        }],
         _id: 'kuaidaili'
       },
     },
