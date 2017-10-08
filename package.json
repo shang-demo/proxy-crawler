@@ -5,7 +5,7 @@
   "author": "xinshangshangxin <xinshangshangxin@gmail.com>",
   "license": "MIT",
   "engines": {
-    "node": ">=7.6.0"
+    "node": ">=8.6.0"
   },
   "scripts": {
     "start": "gulp",
@@ -27,6 +27,7 @@
     "nodemailer": "^4.0.1",
     "pino": "shang-package/pino",
     "pm2": "^2.4.6",
+    "random-useragent": "^0.3.1",
     "redis": "^2.7.1",
     "request": "^2.81.0",
     "request-promise": "^4.2.1",

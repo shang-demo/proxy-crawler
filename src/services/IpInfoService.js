@@ -1,4 +1,5 @@
 const rp = require('request-promise');
+const randomUseragent = require('random-useragent');
 
 const svc = {
   pendingList: [],
@@ -20,7 +21,12 @@ const svc = {
       proxyInfo.ipNextCheckTime &&
       new Date(proxyInfo.ipNextCheckTime).getTime() >= new Date().getTime()
     ) {
-      logger.info('ipNextCheck: ', proxyInfo);
+      logger.trace('ipNextCheck: ', proxyInfo);
+      return null;
+    }
+
+    if (svc.pendingList.indexOf(proxyUrl) >= 0) {
+      logger.trace('in pendingList', proxyUrl, svc.pendingList.length);
       return null;
     }
 
@@ -69,12 +75,16 @@ const svc = {
       .try(() => {
         return rp({
           url: `http://ip.taobao.com/service/getIpInfo.php?ip=${ip}`,
+          headers: {
+            'User-Agent': randomUseragent.getRandom(),
+          },
           json: true,
           timeout: mKoa.config.times.ipCheckTimeout,
         });
       })
       .timeout(2 * mKoa.config.times.ipCheckTimeout)
-      .catch(() => {
+      .catch((e) => {
+        logger.warn(e && e.message);
         return { code: -1, msg: 'timeout' };
       });
 

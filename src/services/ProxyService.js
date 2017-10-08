@@ -1,5 +1,6 @@
 const rp = require('request-promise');
-const { userAgents, proxyCrawlerList } = require('./Constants');
+const randomUseragent = require('random-useragent');
+const { proxyCrawlerList } = require('./Constants');
 
 const svc = {
   checkLen: 0,
@@ -109,7 +110,7 @@ const svc = {
               .findOne({ proxyUrl })
               .then((data) => {
                 if (!data) {
-                  return this.updateProxy({ url: proxyUrl });
+                  return svc.updateProxy({ url: proxyUrl });
                 }
                 return null;
               });
@@ -150,14 +151,13 @@ const svc = {
       .map((proxy) => {
         this.checkLen = this.checkLen - 1;
         return Promise
-          .race([
-            this.updateProxy(proxy),
-            Promise.delay(2 * mKoa.config.times.proxyCheckTimeout),
-          ])
-          .then((data) => {
-            if (!data) {
-              logger.warn('delay win in race', proxy);
-            }
+          .try(() => {
+            return svc.updateProxy(proxy);
+          })
+          .timeout(2 * mKoa.config.times.proxyCheckTimeout)
+          .catch((e) => {
+            logger.warn(e);
+            return null;
           });
       }, { concurrency: 100 })
       .then(() => {
@@ -178,7 +178,7 @@ const svc = {
         proxy: proxyUrl,
         followRedirect: false,
         headers: {
-          'User-Agent': userAgents[Math.floor(Math.random() * userAgents.length)]
+          'User-Agent': randomUseragent.getRandom()
         },
         json: true,
       })
