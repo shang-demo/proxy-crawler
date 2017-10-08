@@ -4,28 +4,28 @@ const ctrl = {
 
     if (ctx.query.search) {
       conditions.$or = [{
-        title: {
+        url: {
           $regex: _.escapeRegExp(ctx.query.search),
           $options: 'gi',
-        }
-      }, {
-        intro: {
-          $regex: _.escapeRegExp(ctx.query.search),
-          $options: 'gi',
-        }
+        },
       }];
     }
 
-    if (ctx.query.connected === undefined) {
-      conditions.connected = true;
+    let query = _.pick(ctx.query, ['area', 'area_id', 'region', 'region_id', 'city', 'city_id', 'country', 'country_id', 'isp', 'isp_id', 'connected']);
+
+    query = _.reduce(query, (result, item, key) => {
+      result[key] = UtilService.parseJsonOrString(item);
+      return result;
+    }, {});
+
+    if (!query.country && !query.country_id) {
+      query.country = '中国';
+    }
+    if (!query.connected) {
+      query.connected = true;
     }
 
-    let addressQuery = _.pick(ctx.query, ['area', 'area_id', 'region', 'region_id', 'city', 'city_id', 'country', 'country_id', 'isp', 'isp_id']);
-
-    if (!addressQuery.country && !addressQuery.country_id) {
-      addressQuery.country = '中国';
-    }
-    _.assign(conditions, addressQuery);
+    _.assign(conditions, query);
 
     logger.info('conditions: ', conditions);
     await UtilService

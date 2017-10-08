@@ -110,6 +110,19 @@ const svc = {
 
     return new RegExp(str, 'gi');
   },
+  parseJsonOrString(str) {
+    let result;
+    if (!_.isString(str)) {
+      return str;
+    }
+    try {
+      result = JSON.parse(str);
+    }
+    catch (e) {
+      result = str;
+    }
+    return result;
+  },
   getConditions(ctx, { conditions = {}, projection, options }) {
     let opt = {
       sort: ctx.query.sort || { _id: -1 },

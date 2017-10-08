@@ -4,7 +4,7 @@ const MONGODB_PASSWORD = process.env.MONGODB_PASSWORD;
 
 module.exports = {
   log: {
-    level: 'trace',
+    level: 'debug',
     requestBody: true,
     responseBody: false,
   },
