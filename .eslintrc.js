@@ -9,6 +9,7 @@ module.exports = {
     Errors: false,
     ExecuteCmdService: false,
     HookService: false,
+    IpInfoService: false,
     logger: false,
     MailSendService: false,
     mKoa: false,

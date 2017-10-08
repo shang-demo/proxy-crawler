@@ -71,49 +71,50 @@ const svc = {
       });
   },
   async crawler() {
-    return Promise.map(proxyCrawlerList, (crawlerInfo) => {
-      return Promise
-        .map(crawlerInfo.requestList, (requestConfig) => {
-          return Promise
-            .try(() => {
-              return svc.getHtml(requestConfig);
-            })
-            .then((html) => {
+    return Promise.map(proxyCrawlerList, this.crawlerOne);
+  },
+  async crawlerOne(crawlerInfo) {
+    return Promise
+      .map(crawlerInfo.requestList, (requestConfig) => {
+        return Promise
+          .try(() => {
+            return svc.getHtml(requestConfig);
+          })
+          .then((html) => {
             logger.info(typeof html);
-              return rp({
-                url: mKoa.config.request.parser.url,
-                method: mKoa.config.request.parser.method,
-                json: mKoa.config.request.parser.json,
-                body: {
-                  html,
-                  sitemap: crawlerInfo.sitemap,
-                }
-              });
-            })
-            .then((data) => {
-              logger.info(`crawler length: ${data.length}`, data);
-
-              return _.chain(data)
-                .filter((item) => {
-                  return item.ip_address && item.type;
-                })
-                .map((item) => {
-                  return `${item.type.toLocaleLowerCase()}://${item.ip_address}`;
-                })
-                .value();
-            })
-            .map((proxyUrl) => {
-              return Proxy
-                .findOne({ proxyUrl })
-                .then((data) => {
-                  if (!data) {
-                    return this.updateProxy({ url: proxyUrl });
-                  }
-                  return null;
-                });
+            return rp({
+              url: mKoa.config.request.parser.url,
+              method: mKoa.config.request.parser.method,
+              json: mKoa.config.request.parser.json,
+              body: {
+                html,
+                sitemap: crawlerInfo.sitemap,
+              }
             });
-        });
-    });
+          })
+          .then((data) => {
+            logger.info(`crawler length: ${data.length}`, data);
+
+            return _.chain(data)
+              .filter((item) => {
+                return item.ip_address && item.type;
+              })
+              .map((item) => {
+                return `${item.type.toLocaleLowerCase()}://${item.ip_address}`;
+              })
+              .value();
+          })
+          .map((proxyUrl) => {
+            return Proxy
+              .findOne({ proxyUrl })
+              .then((data) => {
+                if (!data) {
+                  return this.updateProxy({ url: proxyUrl });
+                }
+                return null;
+              });
+          });
+      });
   },
   async check() {
     if (this.checkLen > 0) {
@@ -190,20 +191,15 @@ const svc = {
   },
   async updateProxy({ url, failedTimes = 0, checkIndex = 0, connected }) {
     /* eslint-disable no-param-reassign */
-
     if (!url) {
       return null;
     }
-
-    let currentConnected;
-    try {
-      currentConnected = await this.checkProxy(url);
-    }
-    catch (e) {
-      throw e;
-    }
-
     let currentDeleted;
+
+    let currentConnected = await this.checkProxy(url);
+    if (currentConnected) {
+      await IpInfoService.add(url);
+    }
 
     checkIndex += 1;
 
@@ -218,9 +214,9 @@ const svc = {
       checkIndex = 1;
     }
 
-    // 连续成功3次以上的
-    if (currentConnected && connected && checkIndex > 3) {
-      checkIndex = 3;
+    // 连续成功2次以上的
+    if (currentConnected && connected && checkIndex >= 2) {
+      checkIndex = 2;
     }
 
     // 连续失败30次以上的
@@ -233,7 +229,7 @@ const svc = {
       currentDeleted = true;
     }
 
-    let nextCheckTime = new Date(new Date().getTime() + (checkIndex * 60 * 1000));
+    let nextCheckTime = new Date(new Date().getTime() + (checkIndex * 30 * 1000));
 
     return Proxy
       .findOneAndUpdate({
@@ -258,7 +254,3 @@ const svc = {
 };
 
 module.exports = svc;
-
-setTimeout(() => {
-  svc.checkProxy('http://119.57.108.17');
-}, 1000);
