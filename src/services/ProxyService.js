@@ -8,27 +8,34 @@ const svc = {
     svc.intervalCheck();
     svc.intervalCrawler();
 
+    return Promise.resolve();
+  },
+  async intervalCheck() {
+    if (!mKoa.config.times.proxyCheckDelay) {
+      logger.warn('not start proxy check');
+      return null;
+    }
+
     svc.check()
       .catch((e) => {
         logger.warn(e);
       });
 
-    svc.crawler()
-      .catch((e) => {
-        logger.warn(e);
-      });
-
-    return Promise.resolve();
-  },
-  async intervalCheck() {
     setInterval(() => {
       svc.check()
         .catch((e) => {
           logger.warn(e);
         });
     }, mKoa.config.times.proxyCheckDelay);
+
+    return null;
   },
   async intervalCrawler() {
+    svc.crawler()
+      .catch((e) => {
+        logger.warn(e);
+      });
+
     setInterval(() => {
       svc.crawler()
         .catch((e) => {
@@ -48,7 +55,7 @@ const svc = {
     }
 
     if (requestConfig.type === 'headlessChrome') {
-      return rp(requestConfig)
+      return rp(_.assign({}, mKoa.config.request.headlessChrome, requestConfig))
         .then((data) => {
           return data.data.html;
         });
@@ -72,6 +79,7 @@ const svc = {
       });
   },
   async crawler() {
+    logger.info('start crawler list: ', proxyCrawlerList.length);
     return Promise.map(proxyCrawlerList, this.crawlerOne);
   },
   async crawlerOne(crawlerInfo) {
@@ -82,7 +90,6 @@ const svc = {
             return svc.getHtml(requestConfig);
           })
           .then((html) => {
-            logger.info(typeof html);
             return rp({
               url: mKoa.config.request.parser.url,
               method: mKoa.config.request.parser.method,
@@ -94,7 +101,7 @@ const svc = {
             });
           })
           .then((data) => {
-            logger.info(`crawler length: ${data.length}`, data);
+            logger.info(`crawler length: ${data.length}`, _.assign({}, data[0], data[1]), requestConfig);
 
             return _.chain(data)
               .filter((item) => {
@@ -114,6 +121,10 @@ const svc = {
                 }
                 return null;
               });
+          })
+          .catch((e) => {
+            logger.warn('requestConfig: ', requestConfig, 'e: ', e);
+            return [];
           });
       });
   },

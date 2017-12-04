@@ -12,11 +12,7 @@ module.exports = {
       requestList: [
         {
           type: 'headlessChrome',
-          method: 'POST',
-          url: 'http://headless-chrome.xinshangshangxin.com/',
-          headers: { 'content-type': 'application/json' },
           body: { query: '{\n  html(url:"http://www.goubanjia.com/", delay:1000)\n}' },
-          json: true
         }
       ],
       sitemap: {
@@ -65,19 +61,11 @@ module.exports = {
       requestList: [
         {
           type: 'headlessChrome',
-          method: 'POST',
-          url: 'http://headless-chrome.xinshangshangxin.com/',
-          headers: { 'content-type': 'application/json' },
           body: { query: '{\n  html(url:"http://www.kuaidaili.com/free/inha/", delay:3000)\n}' },
-          json: true
         },
         {
           type: 'headlessChrome',
-          method: 'POST',
-          url: 'http://headless-chrome.xinshangshangxin.com/',
-          headers: { 'content-type': 'application/json' },
           body: { query: '{\n  html(url:"http://www.kuaidaili.com/free/intr/", delay:3000)\n}' },
-          json: true
         }
       ],
       sitemap: {
@@ -131,7 +119,16 @@ module.exports = {
     },
     {
       name: 'xicidaili',
-      requestList: ['http://www.xicidaili.com/nn/', 'http://www.xicidaili.com/nt/'],
+      requestList: [
+        {
+          type: 'headlessChrome',
+          body: { query: '{\n  html(url:"http://www.xicidaili.com/nn/", delay:1000)\n}' },
+        },
+        {
+          type: 'headlessChrome',
+          body: { query: '{\n  html(url:"http://www.xicidaili.com/nt/", delay:1000)\n}' },
+        }
+      ],
       sitemap: {
         startUrl: 'http://www.xicidaili.com/nn/',
         selectors: [

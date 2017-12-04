@@ -6,6 +6,10 @@ const svc = {
   checking: false,
   ipRegExp: /((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d))))/,
   async lift() {
+    if (!mKoa.config.times.ipCheckDelay) {
+      logger.warn('not start ip check service');
+      return null;
+    }
     setInterval(() => {
       if (svc.checking) {
         return;
@@ -13,6 +17,8 @@ const svc = {
 
       svc.check();
     }, mKoa.config.times.ipCheckDelay);
+
+    return null;
   },
   async add(proxyUrl) {
     let proxyInfo = await Proxy.findOne({ url: proxyUrl }).lean();

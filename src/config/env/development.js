@@ -1,4 +1,3 @@
-
 module.exports = {
   log: {
     level: 'trace',
@@ -42,10 +41,10 @@ module.exports = {
     'ProxyService',
   ],
   times: {
-    proxyCheckDelay: 10 * 1000,
+    // proxyCheckDelay: 10 * 1000,
     proxyCrawlerDelay: 15 * 60 * 1000,
     proxyCheckTimeout: 15 * 1000,
-    ipCheckDelay: 1000,
+    // ipCheckDelay: 1000,
     ipCheckTimeout: 5 * 1000,
     ipInfoSuccessTimeWindow: 48 * 60 * 60 * 1000,
     ipInfoFailedTimeWindow: 2 * 60 * 60 * 1000,
@@ -59,8 +58,14 @@ module.exports = {
     },
     crawler: {
       url: 'http://site-crawler-service.xinshangshangxin.com/api/v1/crawler',
+      // url: 'http://127.0.0.1:1338/api/v1/crawler',
       json: true,
       method: 'POST',
+    },
+    headlessChrome: {
+      url: 'https://headless-chrome-puppeteer.now.sh',
+      method: 'POST',
+      json: true,
     },
   },
 };

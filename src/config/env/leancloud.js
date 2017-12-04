@@ -64,5 +64,10 @@ module.exports = {
       json: true,
       method: 'POST',
     },
+    headlessChrome: {
+      url: 'https://headless-chrome-puppeteer.now.sh',
+      method: 'POST',
+      json: true,
+    },
   },
 };
