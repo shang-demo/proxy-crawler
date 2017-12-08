@@ -15,10 +15,10 @@ module.exports = {
     'ProxyService',
   ],
   times: {
-    // proxyCheckDelay: 10 * 1000,
+    ipCheckDelay: 1000,
+    proxyCheckDelay: 10 * 1000,
     proxyCrawlerDelay: 15 * 60 * 1000,
     proxyCheckTimeout: 15 * 1000,
-    // ipCheckDelay: 1000,
     ipCheckTimeout: 5 * 1000,
     ipInfoSuccessTimeWindow: 48 * 60 * 60 * 1000,
     ipInfoFailedTimeWindow: 2 * 60 * 60 * 1000,
